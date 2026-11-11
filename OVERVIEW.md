@@ -1,19 +1,20 @@
-# 任务完成通知（飞书 / Telegram）
+# Task completion notifications
 
-在主任务最终完成、执行失败或等待授权时，通过飞书自定义机器人或 Telegram 机器人发送通知。子代理（subagent）的回合结束与中间过程不通知。
+Sends a message through Feishu (Lark) or Telegram when a top-level agent task finishes, fails, or waits for permission. Subagent turns and intermediate steps stay silent.
 
-## 工作方式
+## How it works
 
-插件订阅 paseo 的 agent 生命周期事件：主 agent 的回合结束（成功或失败）与权限请求。触发前检查通知开关与最短任务时长，从时间线尾部取最后一条助手消息作为摘要，经配置的通知渠道推送。全部逻辑运行在 paseo 守护进程的插件子进程内，不需要额外常驻服务。
+The plugin subscribes to agent lifecycle events from the paseo daemon: the end of a top-level agent turn (completed or failed) and pending permission requests. Before sending, it checks the notification switches and the minimum task duration, takes the last assistant message of the turn as the summary, and delivers to every enabled channel. It runs as a plugin subprocess inside the daemon and needs no separate service.
 
-## 设置
+## Setup
 
-- 通知开关：默认全部关闭。输入框旁的铃铛按钮按 agent 开启；`/notify on` 全局开启，`/notify off` 全部关闭；也可用命令中心（Ctrl+K）或设置页切换。
-- 飞书机器人：在设置页填入自定义机器人的 Webhook 地址与签名密钥（可选）。
-- Telegram 机器人：填入 @BotFather 创建的 Bot Token 与 Chat ID（先给机器人发条消息，设置页可一键探测）。
-- 渠道开关：飞书与 Telegram 各有独立开关（默认开启）。渠道在「开关开启且配置齐全」时才会推送，可以只开一个或同时开多个；关闭开关仅暂停推送，配置保留。
-- 通知行为：可选是否通知任务失败与等待授权；短于设定时长（默认 60 秒）完成的任务不通知。测试按钮会分别报告每个渠道的发送结果（未配置或已关闭的渠道显示跳过原因）。
+- Notification switches: notifications are off by default. The bell button beside the composer enables them for one agent. `/notify on` and `/notify off` switch every agent at once, and the command center (Ctrl+K) or the settings page can toggle the global switch.
+- Feishu: enter the webhook URL of a custom bot in the settings page. The signing secret is optional.
+- Telegram: enter a bot token from @BotFather and a chat id. Send the bot a message first; the settings page can detect the chat id for you.
+- Channel switches: Feishu and Telegram each have an independent switch, on by default. A channel sends only when its switch is on and its configuration is complete. Turning a switch off pauses that channel and keeps its configuration.
+- Behavior: choose whether to notify on failed tasks and on pending permission requests. Tasks that finish in less than the configured minimum (60 seconds by default) are not announced. The test button reports the result for each channel.
+- Title prefix (up to 20 characters, empty by default): shown as `[prefix]` in message titles to tell apart several machines or bots that share one destination.
 
-## 权限与限制
+## Permissions and limits
 
-插件仅向配置的飞书 webhook 地址与 Telegram Bot API（api.telegram.org）发出 HTTPS 请求，不监听端口、不读取其他文件。守护进程停止时插件随之下线，此时也没有任务会产生事件。需要 paseo 0.14.0 及以上版本且已启用插件。
+The plugin sends HTTPS requests only to the configured Feishu webhook URL and the Telegram Bot API at api.telegram.org. It listens on no ports and reads no files other than its own settings. Configuration and switch state are stored in the paseo home and are not uploaded anywhere. When the daemon stops, the plugin stops with it, and no tasks run in that state. Requires paseo 0.14.0 or later with plugins enabled.
