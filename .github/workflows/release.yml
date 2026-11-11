@@ -1,0 +1,56 @@
+name: release
+
+# 发版规则：改 package.json 的 version 后 push 到 main，
+# Action 自动打 tag、打包源码 zip 并创建 GitHub Release。
+# 不改版本号的 push 不会触发发版。
+on:
+  push:
+    branches: [main]
+    paths: [package.json]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 读取版本号
+        id: version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: 已存在则跳过
+        id: check
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Release ${{ steps.version.outputs.tag }} 已存在，跳过。"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 打包源码 zip
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          # 与历史 release 包保持同一格式：顶层 paseo-task-notify/ 目录，
+          # 源码文件全含，不含 assets/ 与 node_modules/。
+          git archive --prefix=paseo-task-notify/ HEAD -- . ':!assets' -o src.tar
+          mkdir -p build && tar -xf src.tar -C build
+          cd build && zip -qr "../paseo-task-notify-${TAG}.zip" paseo-task-notify
+          cd .. && unzip -l "paseo-task-notify-${TAG}.zip"
+
+      - name: 创建 Release
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            "paseo-task-notify-${TAG}.zip"

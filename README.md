@@ -117,6 +117,10 @@ paseo plugin reload paseo-task-notify   # 改代码后生效，不要重启 daem
 - 大改前先备份：`scripts/backup-config.sh`（备份到 `~/.paseo/plugin-backups/paseo-task-notify/<时间戳>/`），出问题用 `scripts/restore-config.sh <备份目录>` 恢复
 - 配置文件位置：`~/.paseo/plugin-settings/paseo-task-notify/notify.json`（渠道参数），`~/.paseo/plugin-data/paseo-task-notify/state.json`（铃铛开关，`remove` 不删它）
 
+### 发版
+
+改 `package.json` 的 `version` 后 push 到 `main`，`.github/workflows/release.yml` 会自动：打 `vX.Y.Z` tag → 按历史格式打包 `paseo-task-notify-vX.Y.Z.zip`（顶层目录、不含 `assets/`）→ 创建 GitHub Release（changelog 自动生成）并上传附件。**想发版 = 改版本号**；不改版本号的 push 不会触发，重复跑同一版本会自动跳过。
+
 项目结构：
 
 ```
