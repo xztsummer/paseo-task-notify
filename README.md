@@ -5,6 +5,20 @@ paseo 任务完成通知插件 —— **主任务跑完才通知你**，飞书 /
 [![paseo plugin](https://img.shields.io/badge/paseo-plugin%20%3E%3D0.14.0-6E56CF)](https://paseo.sh/docs/plugins)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
+## 截图
+
+**插件设置页**（渠道独立开关、飞书 / Telegram 配置、通知行为）
+
+![插件设置页](assets/screenshot-settings.png)
+
+**agent 输入框旁的通知铃铛**（点亮即开启该 agent 的任务完成通知）
+
+![通知铃铛](assets/screenshot-bell.png)
+
+**安装后在插件列表中运行**
+
+![插件列表](assets/screenshot-plugins.png)
+
 ## 背景
 
 paseo 里跑的长任务（大重构、批量修改、跑测试）经常一跑就是十几分钟到几个小时。人不可能一直盯着屏幕，但又不知道任务什么时候结束、有没有失败、是不是卡在等授权。

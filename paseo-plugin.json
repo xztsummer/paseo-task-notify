@@ -2,5 +2,10 @@
   "id": "paseo-task-notify",
   "requirements": {
     "paseo": ">=0.14.0"
-  }
+  },
+  "media": [
+    "assets/screenshot-settings.png",
+    "assets/screenshot-bell.png",
+    "assets/screenshot-plugins.png"
+  ]
 }
