@@ -1,5 +1,7 @@
-import type { PaseoApi } from "@getpaseo/client";
-import type { PluginServerContext } from "@getpaseo/plugin/server";
+import type { PluginHandlerContext, PluginServerContext } from "@getpaseo/plugin/server";
+// Derived rather than imported: `PaseoApi` lives in `@getpaseo/client`, and the
+// compiler rejects a plugin server bundle that imports that specifier directly.
+type PaseoApi = PluginHandlerContext["paseo"];
 import {
   notifyStateGet,
   notifyStateSetAgent,
