@@ -6,7 +6,8 @@ name: release
 on:
   push:
     branches: [main]
-    paths: [package.json]
+    paths: [package.json, .github/workflows/release.yml]
+  workflow_dispatch:
 
 jobs:
   release:
@@ -41,7 +42,7 @@ jobs:
           TAG="${{ steps.version.outputs.tag }}"
           # 与历史 release 包保持同一格式：顶层 paseo-task-notify/ 目录，
           # 源码文件全含，不含 assets/ 与 node_modules/。
-          git archive --prefix=paseo-task-notify/ HEAD -- . ':!assets' -o src.tar
+          git archive -o src.tar --prefix=paseo-task-notify/ HEAD -- . ':!assets'
           mkdir -p build && tar -xf src.tar -C build
           cd build && zip -qr "../paseo-task-notify-${TAG}.zip" paseo-task-notify
           cd .. && unzip -l "paseo-task-notify-${TAG}.zip"
