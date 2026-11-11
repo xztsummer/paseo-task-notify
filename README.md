@@ -111,6 +111,12 @@ npm run typecheck
 paseo plugin reload paseo-task-notify   # 改代码后生效，不要重启 daemon
 ```
 
+### 更新不丢配置
+
+- 日常更新只用 `paseo plugin update paseo-task-notify`（换代码目录，不动配置），本地改完用 `paseo plugin reload`；**不要用 `paseo plugin remove`**——它会删除 `plugin-settings/paseo-task-notify/notify.json`（飞书 webhook、Telegram Token 等配置丢失，且无法恢复）
+- 大改前先备份：`scripts/backup-config.sh`（备份到 `~/.paseo/plugin-backups/paseo-task-notify/<时间戳>/`），出问题用 `scripts/restore-config.sh <备份目录>` 恢复
+- 配置文件位置：`~/.paseo/plugin-settings/paseo-task-notify/notify.json`（渠道参数），`~/.paseo/plugin-data/paseo-task-notify/state.json`（铃铛开关，`remove` 不删它）
+
 项目结构：
 
 ```
