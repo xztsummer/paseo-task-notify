@@ -1,6 +1,6 @@
 {
   "name": "paseo-task-notify",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Paseo plugin: notify Feishu and/or Telegram when a top-level task finishes, fails, or waits for permission",
   "keywords": [
     "paseo",
