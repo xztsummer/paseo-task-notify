@@ -1,3 +1,5 @@
+**简体中文** | [English](README.en.md)
+
 # paseo-task-notify
 
 paseo 任务完成通知插件 —— **主任务跑完才通知你**，飞书 / Telegram 双渠道，默认安静、按需开启。
