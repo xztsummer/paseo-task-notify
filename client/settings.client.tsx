@@ -327,6 +327,23 @@ export function NotifySettingsScreen({ theme, layout }: PluginSurfaceProps) {
           }}
         />
         <Text style={styles.muted}>短于该时长完成的任务不通知，默认 60 秒。</Text>
+        <Text style={styles.label}>标题前缀（选填，最多 20 字）</Text>
+        <TextInput
+          style={styles.input}
+          value={draft.titlePrefix}
+          maxLength={20}
+          onChangeText={(titlePrefix) => {
+            setDraft({ ...draft, titlePrefix });
+            setSaved(false);
+          }}
+          placeholder="如 MBP，标题会变成 [MBP] ✅ 任务完成…"
+          placeholderTextColor={theme.colors.foregroundMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <Text style={styles.muted}>
+          多台设备或多个机器人同时推送时用来区分来源，留空则不加前缀。
+        </Text>
       </View>
 
       <Pressable

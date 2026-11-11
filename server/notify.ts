@@ -87,6 +87,12 @@ function permissionDescription(request: {
   return request.name ? `${kindLabel}：${request.name}` : kindLabel;
 }
 
+/** 标题前缀：多台设备/多个机器人同时推送时区分来源，为空则原样返回。 */
+function withTitlePrefix(config: NotifySettings, title: string): string {
+  const prefix = config.titlePrefix.trim();
+  return prefix ? `[${prefix}] ${title}` : title;
+}
+
 /** 注册服务端全部贡献：生命周期钩子、开关状态 RPC、配置 settings。 */
 export function registerNotifyServer(server: PluginServerContext): () => void {
   const settings = server.registerSettings(NOTIFY_SETTINGS);
@@ -189,10 +195,12 @@ export function registerNotifyServer(server: PluginServerContext): () => void {
     }
     if (summary) lines.push(summary);
     if (startedAt !== undefined) lines.push(`⏱ 用时 ${formatDuration(Date.now() - startedAt)}`);
-    const title =
+    const title = withTitlePrefix(
+      config,
       outcome.kind === "failed"
         ? `❌ 任务失败 · ${agentLabel(agent)}`
-        : `✅ 任务完成 · ${agentLabel(agent)}`;
+        : `✅ 任务完成 · ${agentLabel(agent)}`,
+    );
     await deliver(config, title, lines.join("\n\n") || "（无内容）");
   });
 
@@ -210,7 +218,7 @@ export function registerNotifyServer(server: PluginServerContext): () => void {
     if (!config.notifyOnPermission) return;
     const state = await readState();
     if (!agentEnabled(state, agent.id)) return;
-    const title = `⏸ 等待授权 · ${agentLabel(agent)}`;
+    const title = withTitlePrefix(config, `⏸ 等待授权 · ${agentLabel(agent)}`);
     const text = `${permissionDescription(request)}\n\n任务已暂停，等待你确认后继续。`;
     await deliver(config, title, text);
   });
@@ -284,12 +292,18 @@ export function registerNotifyServer(server: PluginServerContext): () => void {
     // 并行测试，一个渠道超时不拖累另一个。
     await Promise.all([
       runChannel("feishu", config.webhookUrl !== "", config.feishuEnabled, () =>
-        sendFeishu(config, { title: "🔔 测试消息", text: "paseo-task-notify 与飞书的连接正常。" }),
+        sendFeishu(config, {
+          title: withTitlePrefix(config, "🔔 测试消息"),
+          text: "paseo-task-notify 与飞书的连接正常。",
+        }),
       ),
       runChannel("telegram", telegramConfigured(config), config.telegramEnabled, () =>
         sendTelegram(
           { botToken: config.telegramBotToken, chatId: config.telegramChatId },
-          { title: "🔔 测试消息", text: "paseo-task-notify 与 Telegram 的连接正常。" },
+          {
+            title: withTitlePrefix(config, "🔔 测试消息"),
+            text: "paseo-task-notify 与 Telegram 的连接正常。",
+          },
         ),
       ),
     ]);

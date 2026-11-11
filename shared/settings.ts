@@ -18,6 +18,8 @@ export const notifySettingsSchema = z.object({
   minDurationSeconds: z.number().int().min(0).max(3600).catch(60),
   notifyOnFailed: z.boolean().catch(true),
   notifyOnPermission: z.boolean().catch(true),
+  /** 消息标题前缀：多台设备/多个机器人同时推送时用来区分来源，空串表示不加。 */
+  titlePrefix: z.string().max(20).catch(""),
 });
 
 export type NotifySettings = z.output<typeof notifySettingsSchema>;
